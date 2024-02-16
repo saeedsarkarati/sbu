@@ -1,4 +1,5 @@
-#Coupling Coeffitient driven by out team
+#Coupling Coeffitient driven by our team
+# ~ parallel plates
 from scipy.special import erf
 import numpy as np
 k0 = 9e9
