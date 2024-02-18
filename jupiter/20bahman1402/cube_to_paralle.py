@@ -1,6 +1,6 @@
 from plates import *
 import time
-printflag = False
+printflag = True
 if printflag:
 	sprint = print
 else:
@@ -12,27 +12,37 @@ for nn in range (1, 2):
 	l = 1
 	l2 = l / 2
 	plate=[]
-	zzc = [l2, -l2, 0, 0, 0, 0]
-	xxc = [0, 0, l2, -l2, 0, 0]
-	yyc = [0, 0, 0, 0, l2, -l2]
-	ddr = [0, 3, 2, 5, 1, 4]
-	for i in range(6):
-		plate.append(tplate())
-		plate[i].n = nn; 
-		plate[i].l = l; 
-		plate[i].xc, plate[i].yc, plate[i].zc =   xxc[i], yyc[i], zzc[i]
-		plate[i].dir = ddr[i]
-		plate[i].index = i
-		plate[i].ax = plate[i].dir % 3
-		plate[i].upordown = plate[i].dir // 3
+	zzc = [l2, -l2]
+	xxc = [0, 0]
+	yyc = [0, 0]
+	ddr = [0, 3]
+
+	plate.append(tplate())
+	plate[0].n = nn; 
+	plate[0].l = l * 2; 
+	plate[0].xc, plate[0].yc, plate[0].zc =   0, 0, l2/10
+	plate[0].dir = 0
+	plate[0].index = 0
+	plate[0].ax = 0
+	plate[0].upordown = 0
 	
+	plate.append(tplate())
+	plate[1].n = nn; 
+	plate[1].l = l*2; 
+	plate[1].xc, plate[1].yc, plate[1].zc =   0, 0, -l2/10
+	plate[1].dir = 3
+	plate[1].index = 1
+	plate[1].ax = 0
+	plate[1].upordown = 1
+		
 	for i in plate:
 		i.make_tiles()
 		sprint(i.i)
 		sprint(i.j)
 		sprint(i.k)
 		sprint('--------------')
-	V = np.ones(nn * nn * 6) 
+	V = np.ones(nn * nn * 2) * .5
+	V[nn * nn:] = -0.5
 	n_plate = len(plate)
 	for i in range(n_plate):
 
@@ -46,7 +56,9 @@ for nn in range (1, 2):
 		if i == 0: 
 			P = Pj 
 		else:
-			P = np.append(P , Pj ,axis = 0) 
+			P = np.append(P , Pj ,axis = 0)
+		sprint (i)
+		sprint (P)
 	# ~ print('pr--------')
 	# ~ print (pr)
 	# ~ print('cp--------')
@@ -58,8 +70,8 @@ for nn in range (1, 2):
 	pr.clear()
 	# ~ print (P[0])
 	q = np.linalg.solve(P, V)
-	Q = np.sum(q)
+	Q = np.sum(q[:nn*nn])
 	c1 = Q 
 	# ~ print (q[0:nn*nn])
-	print (nn, c1, c1 * 9e9 )
+	print ("ctop",nn, c1 )
 	

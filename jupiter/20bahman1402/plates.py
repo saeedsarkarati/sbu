@@ -1,4 +1,4 @@
-from cc_ss import *
+from parallel import *
 from perpendicular import *
 cc = {} #self 
 cp = {} #coplanar
@@ -77,25 +77,13 @@ def make_Pij(pi, pj):
 	dx = a * dl
 	dy = b * dl
 	dz = c * dl
-	# ~ print (dx)
-	# ~ print (dy)
-	# ~ print (dz)
+	
 	d = np.sqrt (dx*dx + dy*dy + dz*dz)
 	Pij = np.zeros_like (d)
 	cond1 = pi.index == pj.index
 	cond2 = np.logical_and(pi.index != pj.index, pi.ax == pj.ax)
 	cond3 = pi.ax != pj.ax
-	# ~ x = np.array([i, j, k])
-	# ~ x.sort(axis = 0)
-	# ~ print (pi.i, pi.j, pi.k)
-	# ~ print('------')
-	# ~ if pi.ax == pj.ax == 0:
-		# ~ print (0, pi.i, pi.j, pi.k, pj.i, pj.j, pj.k)
-	# ~ if pi.ax == pj.ax == 1:
-		# ~ print (1, pi.i, pi.j, pi.k, pj.i, pj.j, pj.k)
-	# ~ if pi.ax == pj.ax == 2:
-		# ~ print (2, pi.i, pi.j, pi.k, pj.i, pj.j, pj.k)
-	# ~ if pi.index == 0:
+	
 		
 	if pi.ax == pj.ax:
 		if pi.ax == pj.ax ==0:
@@ -119,8 +107,7 @@ def make_Pij(pi, pj):
 			ii = b
 			jj = c
 			kk = a
-		# ~ print (ii)
-		# ~ print(jj)
+		
 		t = np.array([ii,jj])
 		t.sort(axis = 0)
 		u = t[0] * 100 + t[1]
@@ -149,19 +136,9 @@ def make_Pij(pi, pj):
 			
 		t = np.array([jj,kk])
 		t.sort(axis = 0)
-		# ~ print ('iiiiiiiii', ii)
-		# ~ print(a)
-		# ~ print ('jjjjjjjjj', jj)
-		# ~ print (b)
-		# ~ print ('kkkkkkkkk', kk)
-		# ~ print(c)
+		
 		u = t[0] * 100 + t[1] + ii * 10000
 	
-	# ~ print (u)
-
-	# ~ print ('----------')
-	# ~ Pij[cond2] = saeed(pj.l/ pj.n, pj.l / pj.n, ddx[cond2], ddy[cond2], ddz[cond2]) 
-	# ~ Pij[cond3] = perpendicular(pj.l/ pj.n, pj.l / pj.n, ddx[cond3], ddy[cond3], ddz[cond3]) 
 	for i in range(len(pi.x)):
 		for j in range(len(pi.x)):
 			if pi.index == pj.index:
@@ -170,26 +147,19 @@ def make_Pij(pi, pj):
 					cc[u[i][j]] = Pij[i][j]
 				else:
 					Pij[i][j] = cc[u[i][j]]
-					# ~ Pij[i][j] = saeed_coplanar(pj.l / pj.n, pj.l / pj.n, ddx[i][j], ddy[i][j]) 
 			elif pi.ax == pj.ax:
 				if not(u[i][j] in cp):
 					Pij[i][j] = saeed(pj.l / pj.n, pj.l / pj.n, ddx[i][j], ddy[i][j], ddz[i][j]) 
 					cp[u[i][j]] = Pij[i][j]
 				else:
 					Pij[i][j] = cp[u[i][j]]
-					# ~ Pij[i][j] = saeed(pj.l / pj.n, pj.l / pj.n, ddx[i][j], ddy[i][j], ddz[i][j]) 
 			if pi.ax != pj.ax:
 				if not(u[i][j] in pr):
 					Pij[i][j] = perpendicular(pj.l / pj.n, pj.l / pj.n, ddx[i][j], ddy[i][j], ddz[i][j]) 
 					pr[u[i][j]] = Pij[i][j]
 				else:
 					Pij[i][j] = pr[u[i][j]]
-					# ~ Pij[i][j] = perpendicular(pj.l / pj.n, pj.l / pj.n, ddx[i][j], ddy[i][j], ddz[i][j]) 
-				
-
-				
-	# ~ Pij[cond1] = saeed_coplanar(pj.l / pj.n, pj.l / pj.n, ddx[cond1], ddy[cond1]) 
-	# ~ print (pr)
+					
 	return Pij
 
 

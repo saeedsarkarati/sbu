@@ -1,5 +1,4 @@
-#Coupling Coeffitient
-from cc_ss import *
+#Coupling Coeffitient Perpendicular plates
 from scipy.special import erf
 import numpy as np
 k0 = 9e9
@@ -64,5 +63,4 @@ def perpendicular(Lx ,Ly,x0,y0,z0):
 	Limits = [x1, x2, y1, z1,[y, z]]
 	return -KSum(Limits) * k0 / (L*L)**2  *2 /np.sqrt(np.pi)
 if __name__ == "__main__":
-	print ("%e" %saeed (2, 2, 0, 0 , 1))
-	print ("%e" %perpendicular())
+	print ("%e" %perpendicular(2, 2, 0, 0 , 1))
