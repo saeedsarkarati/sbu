@@ -19,8 +19,8 @@ for nn in range (1, 2):
 
 	plate.append(tplate())
 	plate[0].n = nn; 
-	plate[0].l = l * 2; 
-	plate[0].xc, plate[0].yc, plate[0].zc =   0, 0, l2/10
+	plate[0].l = l; 
+	plate[0].xc, plate[0].yc, plate[0].zc =   0, 0, l2
 	plate[0].dir = 0
 	plate[0].index = 0
 	plate[0].ax = 0
@@ -28,8 +28,8 @@ for nn in range (1, 2):
 	
 	plate.append(tplate())
 	plate[1].n = nn; 
-	plate[1].l = l*2; 
-	plate[1].xc, plate[1].yc, plate[1].zc =   0, 0, -l2/10
+	plate[1].l = l; 
+	plate[1].xc, plate[1].yc, plate[1].zc =   0, 0, -l2
 	plate[1].dir = 3
 	plate[1].index = 1
 	plate[1].ax = 0
@@ -44,6 +44,7 @@ for nn in range (1, 2):
 	V = np.ones(nn * nn * 2) * .5
 	V[nn * nn:] = -0.5
 	n_plate = len(plate)
+	print ('n_plate', n_plate)
 	for i in range(n_plate):
 
 
