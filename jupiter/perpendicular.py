@@ -2,7 +2,7 @@
 from cc_ss import *
 from scipy.special import erf
 import numpy as np
-k0 = 9e9
+k0 = 8.9875517923e9
 e0 = 1 / (4 * np.pi * k0)
 def Kss(x1, y1, z1):
 	x = np.float64(x1)

@@ -1,7 +1,7 @@
 #Coupling Coeffitient
 from scipy.special import erf
 import numpy as np
-k0 = 9e9
+k0 = 8.9875517923e9
 e0 = 1 / (4 * np.pi * k0)
 def Iss(x1, x2, y1, y2, z):
 	x = np.abs(x1 - x2)
@@ -122,3 +122,4 @@ if __name__ == "__main__":
 
 	Ih = hitoshi(Lx, Ly, d, 0, z)
 	print ('hitoshi',Ih, 'saeed/hitoshi',Is/Ih)
+	

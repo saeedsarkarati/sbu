@@ -1,10 +1,13 @@
+import time
 from ss import *
 printflag = False
 if printflag:
 	sprint = print
 else:
 	sprint = lambda *args: None
-for nn in range (1, 50):
+t0 =  (time.time())
+
+for nn in range (50, 150):
 	l = 1
 	l2 = l / 2
 	plate=[]
@@ -57,5 +60,7 @@ for nn in range (1, 50):
 	Q = np.sum(q)
 	c1 = Q 
 	# ~ print (q[0:nn*nn])
-	print (nn, c1, c1 * 9e9 )
+	t = (time.time())
+	
+	print (nn, c1, c1 * k0, c1*9e9,'    ' , int((t - t0)*100) /100 )
 	
