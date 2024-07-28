@@ -66,8 +66,8 @@ d.xc = lc / 2 + gap / 2
 d.yc = 0
 d.z = 0
 
-f_lx = 1
-f_ly = 1
+f_lx = 10 * lc
+f_ly = 10 * lc
 f.nx = 1
 f.ny = 1
 f.n = f.nx * f.ny
@@ -93,7 +93,7 @@ u.V = .5; 		d.V = -.5; 		f.float = True;	   h.hole = True
 
 u.id = 0;	d.id = 1;	f.id = 2;   h.id = 3
 n = u.n + d.n + f.n + h.n
-sprint ("n2.67218753e+11umber of tiles",n)
+sprint ("number of tiles",n)
 x = np.zeros(n); y = np.zeros(n); z = np.zeros(n)
 lx = np.zeros(n); ly = np.zeros(n); V = np.zeros(n)
 up = 0
@@ -110,14 +110,16 @@ u.makev(V[up:])
 d.makev(V[dp:])
 f.makev(V[fp:])
 h.makev(V[hp:])
-
+# ~ "در این قسمت x-lx/2 برای تمام ماتریس محاسبه می‌شود شاید تنها برای hp: به بعد کفایت کند."
 x1 = x - lx/2
 x2 = x + lx/2
 y1 = y - ly/2
 y2 = y + ly/2
 
-area = ((lx*ly)[hp:,np.newaxis]*np.ones(n)[np.newaxis, :])
-
+area = (lx*ly)
+print ('area = ' , area)
+area = (lx*ly)[hp:,np.newaxis]*np.ones(n)[np.newaxis, :]
+print ('area = ' , area)
 malpha = (-(np.abs(x1[hp:,np.newaxis] - x1[np.newaxis, :])+\
 			(x1[hp:,np.newaxis] + x1[np.newaxis, :])) \
 		+(-np.abs(x2[hp:,np.newaxis] - x2[np.newaxis, :])+\
@@ -129,7 +131,7 @@ malpha *= (-(np.abs(y1[hp:,np.newaxis] - y1[np.newaxis, :])+\
 			(y2[hp:,np.newaxis] + y2[np.newaxis, :]))) /2 		
 malpha[malpha<0] = 0
 malpha /= area	
-sprint (malpha)
+sprint ("malpha", malpha)
 
 # ~ hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
 
@@ -153,6 +155,8 @@ sprint("-----------------------------------")
 sprint (pij)
 
 sys.exit()
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 V = np.zeros(n)
 V[up:dp] = u.V
 V[dp:fp] = d.V
@@ -176,8 +180,6 @@ print (Q)
 print ('&&&&', e0 * plength * plength / f.z)
 Q = np.sum(q[fp:])
 print (Q)
-
-
 
 
 # ~ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
