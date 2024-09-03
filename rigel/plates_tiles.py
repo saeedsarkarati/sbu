@@ -157,10 +157,7 @@ sprint (pij)
 sys.exit()
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-V = np.zeros(n)
-V[up:dp] = u.V
-V[dp:fp] = d.V
-V[fp:] = 0
+
 # ~ naghes
 # ~ pij[u.n + d.n: n - 1,:] -= pijd[u.n + d.n +
 pij[fp:hp-1] -= pij[hp-1]
