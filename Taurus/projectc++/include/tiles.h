@@ -206,6 +206,7 @@ TSegment Intersection(const TSegment rect1, TSegment rect2) {
 		result.y = 0;
 		result.lx = 0;
 		result.ly = 0;
+		result.empty = true;
 		return result;
 	}
 	// محاسبه مختصات گوشه‌های مستطیل اول

@@ -41,7 +41,7 @@ for (int iss = 1; iss < 2; ++iss)
 	{
 		TSegment fh;
 		fh = Intersection (T.Tiles[i], hu.P.Tiles[0]);
-		if (fh.lx > 1e-10 && fh.ly > 1e-10){ 
+		if (!(fh.empty)){ 
 			h.P.Tiles.push_back(fh);
 			findex.push_back(i);
 			area_ratio.push_back(fh.lx * fh.ly / (T.Tiles[i].lx * T.Tiles[i].lx));
@@ -51,7 +51,7 @@ for (int iss = 1; iss < 2; ++iss)
 	{
 		TSegment fh;
 		fh = Intersection (T.Tiles[i], hd.P.Tiles[0]);
-		if (fh.lx > 1e-10 && fh.ly > 1e-10){ 
+		if (!(fh.empty)){ 
 			h.P.Tiles.push_back(fh);
 			findex.push_back(i);
 			area_ratio.push_back(fh.lx * fh.ly / (T.Tiles[i].lx * T.Tiles[i].ly));
