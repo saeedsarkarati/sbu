@@ -30,21 +30,20 @@ for (int iss = 1; iss < 2; ++iss)
 	fd.index = T.push_tiles(fd.P);
 	THole hu, hd, h;
 	double dh = df;
-	double rr = 1.0;
+	double rr = 10000.0;
 	hu.P.init(0, 0,  dh/2 , fs/rr, fs/rr, 1, 1);
 	hd.P.init(0, 0,  -dh/2, fs/rr, fs/rr, 1, 1);
 	hu.OP = &(fu.P);
 	hd.OP = &(fd.P);
-	vector <int> findex;
-	vector <double> area_ratio;
+	if (false){
 	for (size_t i =0; i < T.Tiles.size(); ++i)
 	{
 		TSegment fh;
 		fh = Intersection (T.Tiles[i], hu.P.Tiles[0]);
 		if (!(fh.empty)){ 
-			h.P.Tiles.push_back(fh);
-			findex.push_back(i);
-			area_ratio.push_back(fh.lx * fh.ly / (T.Tiles[i].lx * T.Tiles[i].lx));
+							cout << "sefr" << endl;
+
+			T.Tiles[i].holes.push_back(fh);
 		};
 	};
 	for (size_t i =0; i < T.Tiles.size(); ++i)
@@ -52,40 +51,42 @@ for (int iss = 1; iss < 2; ++iss)
 		TSegment fh;
 		fh = Intersection (T.Tiles[i], hd.P.Tiles[0]);
 		if (!(fh.empty)){ 
-			h.P.Tiles.push_back(fh);
-			findex.push_back(i);
-			area_ratio.push_back(fh.lx * fh.ly / (T.Tiles[i].lx * T.Tiles[i].ly));
+				cout << "yek" << endl;
+
+			T.Tiles[i].holes.push_back(fh);
 		};
 	};
-	cout << "holes " << endl;
-	for (size_t i = 0; i < h.P.Tiles.size(); ++i)
-		cout <<i <<" : "<<findex[i] << " area_r : " << area_ratio[i]<< " --- "
-				<<h.P.Tiles[i].x << " : " << h.P.Tiles[i].y
-				<< " : " << h.P.Tiles[i].lx<< " : " 
-						<< h.P.Tiles[i].ly << endl;
-	cout << "QQ" << T.Tiles.size()<<endl;
-	int hole_index = T.push_tiles(h.P);
-	cout << "QQQ" << T.Tiles.size()<<endl;;
+}
+	cout << "Tiles size()" << T.Tiles.size()<<endl;;
 
 	T.make_mat();
 	
 	T.change_mat_ccc(s.uindex, size);
 	
-	for (size_t i = 0; i < h.P.Tiles.size(); ++i) {
-        int row = hole_index + i;
-        T.Pij.row(row).setZero();                  // صفر کردن تمام سطر
-        T.Pij(row, row) = 1.0;                     // ستون قطری برابر 1
-        T.Pij(row, findex[i]) = area_ratio[i];    // ستون findex برابر -area_ratio
-        T.rhs(row) = 0.0;                          // صفر کردن rhs
-    }
+
 
 	T.change_mat_ccc(fu.index, fu.P.Tiles.size() + fd.P.Tiles.size()
 					+h.P.Tiles.size());
-	
+	cout << "Pij:0" <<endl<<T.Pij<< endl;
+
 	VectorXd x = T.Pij.colPivHouseholderQr().solve(T.rhs);
 	cout <<iss<< " Solution: " << x.head(s.Pu.Tiles.size()).sum() << endl;
 	cout << x << endl;
+	//~ 2222222222222222
+	cout << "22222222222222222" << endl;
+
+	T.make_mat2();
+	T.change_mat_ccc(s.uindex, size);
 	
+
+
+	T.change_mat_ccc(fu.index, fu.P.Tiles.size() + fd.P.Tiles.size()
+					+h.P.Tiles.size());
+	cout << "Pij:1" <<endl<<T.Pij<< endl;
+	
+	 x = T.Pij.colPivHouseholderQr().solve(T.rhs);
+	cout <<iss<< " Solution: " << x.head(s.Pu.Tiles.size()).sum() << endl;
+	cout << x << endl;	
 }
 	return 0;
 };

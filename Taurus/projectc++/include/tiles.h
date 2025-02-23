@@ -8,7 +8,7 @@ public:
     double x, y, z, lx, ly, q;
     double V;
     bool empty;
-    std::vector<TSegment*> holes;
+	vector<TSegment> holes;
     
     TSegment(bool empty = false) : empty(empty) {}
 };
@@ -40,6 +40,20 @@ class TTiles
 			for (size_t j = 0; j < n; ++j)
 			{
 				Pij(i,j) = coupling(Tiles[i], Tiles[j]);
+			}
+		#pragma omp parallel for
+		for (size_t i = 0; i < n; ++i)
+			rhs(i) = Tiles[i].V;
+	};	void make_mat2()
+	{
+		size_t n = Tiles.size();
+		Pij.resize(n, n);
+		rhs.resize(n);
+		#pragma omp parallel for collapse(2)
+		for (size_t i = 0; i < n; ++i)
+			for (size_t j = 0; j < n; ++j)
+			{
+				Pij(i,j) = coupling_with_holes(Tiles[i], Tiles[j]);
 			}
 		#pragma omp parallel for
 		for (size_t i = 0; i < n; ++i)
@@ -157,17 +171,17 @@ double coupling(const TSegment& t1, const TSegment& t2) {
 double coupling_with_holes(const TSegment& t1, const TSegment& t2) {
     double cv = coupling(t1, t2);
     
-    for (const auto& hole : t2.holes) {
-        cv -= coupling(t1, *hole);
+    for ( auto hole : t2.holes) {
+        cv -= coupling(t1, hole);
     }
     
-    for (const auto& hole : t1.holes) {
-        cv -= coupling(t2, *hole);
+    for ( auto hole : t1.holes) {
+        cv -= coupling(t2, hole);
     }
     
-    for (const auto& hole1 : t1.holes) {
-        for (const auto& hole2 : t2.holes) {
-            cv += coupling(*hole1, *hole2);
+    for ( auto hole1 : t1.holes) {
+        for ( auto hole2 : t2.holes) {
+            cv += coupling(hole1, hole2);
         }
     }
     
@@ -201,6 +215,7 @@ void TPlate::init (double x, double y, double z, double lx, double ly, int nx, i
 
 TSegment Intersection(const TSegment rect1, TSegment rect2) {
 	TSegment result;
+	result.empty = false;
 	if (fabs(rect1.z - rect2.z) >1e-10) {
 		result.x = 0;
 		result.y = 0;
