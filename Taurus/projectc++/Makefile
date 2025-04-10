@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = g++-11
-CXXFLAGS = -Wall -Wextra -O3 -march=native -fopenmp -Iinclude -I/usr/include/eigen3
+CXXFLAGS = -Wall -Wextra -O3 -march=native -Iinclude -I/usr/include/eigen3
 LDFLAGS = -fopenmp
 
 # Targets

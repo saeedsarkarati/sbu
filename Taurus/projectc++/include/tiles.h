@@ -11,6 +11,10 @@ public:
 	vector<TSegment> holes;
     
     TSegment(bool empty = false) : empty(empty) {}
+    void print()
+    {
+		cout <<" x: "<< x<<" y: "<< y<<" lx: "<< lx<<" ly: "<< ly<<endl;;
+	} 
 };
 double coupling(const TSegment& , const TSegment& );
 double coupling_with_holes(const TSegment& t1, const TSegment& t2);
@@ -50,13 +54,13 @@ class TTiles
 		size_t n = Tiles.size();
 		Pij.resize(n, n);
 		rhs.resize(n);
-		#pragma omp parallel for collapse(2)
+		//~ #pragma omp parallel for collapse(2)
 		for (size_t i = 0; i < n; ++i)
 			for (size_t j = 0; j < n; ++j)
 			{
 				Pij(i,j) = coupling_with_holes(Tiles[i], Tiles[j]);
 			}
-		#pragma omp parallel for
+		//~ #pragma omp parallel for
 		for (size_t i = 0; i < n; ++i)
 			rhs(i) = Tiles[i].V;
 	};
@@ -171,20 +175,28 @@ double coupling(const TSegment& t1, const TSegment& t2) {
 }
 double coupling_with_holes(const TSegment& t1, const TSegment& t2) {
     double cv = coupling(t1, t2);
-    
+    static int i = 0 , j =0 ;
+    cout << "j: -----------------" << j<<endl;
+    j++;
     for ( auto hole : t2.holes) {
         cv -= coupling(t1, hole);
     }
+    cout <<i<<" : cv: "<< cv <<endl;
+    ++i;
     
     for ( auto hole : t1.holes) {
         cv -= coupling(t2, hole);
     }
+    cout <<i<<" : cv: "<< cv <<endl;
+    ++i;
     
     for ( auto hole1 : t1.holes) {
         for ( auto hole2 : t2.holes) {
             cv += coupling(hole1, hole2);
         }
     }
+    cout <<i<<" : cv: "<< cv <<endl;
+    ++i;
     
     return cv;
 }
@@ -214,53 +226,46 @@ void TPlate::init (double x, double y, double z, double lx, double ly, int nx, i
 	};
 };
 
-TSegment Intersection(const TSegment rect1, TSegment rect2) {
-	TSegment result;
-	result.empty = false;
-	if (fabs(rect1.z - rect2.z) >1e-10) {
-		result.x = 0;
-		result.y = 0;
-		result.lx = 0;
-		result.ly = 0;
-		result.empty = true;
-		return result;
-	}
-	// محاسبه مختصات گوشه‌های مستطیل اول
-	double rect1_left = rect1.x - rect1.lx / 2;
-	double rect1_right = rect1.x + rect1.lx / 2;
-	double rect1_bottom = rect1.y - rect1.ly / 2;
-	double rect1_top = rect1.y + rect1.ly / 2;
-	
-	// محاسبه مختصات گوشه‌های مستطیل دوم
-	double rect2_left = rect2.x - rect2.lx / 2;
-	double rect2_right = rect2.x + rect2.lx / 2;
-	double rect2_bottom = rect2.y - rect2.ly / 2;
-	double rect2_top = rect2.y + rect2.ly / 2;
-	
-	// محاسبه اشتراک در محور x
-	double intersect_left = std::max(rect1_left, rect2_left);
-	double intersect_right = std::min(rect1_right, rect2_right);
-	
-	// محاسبه اشتراک در محور y
-	double intersect_bottom = std::max(rect1_bottom, rect2_bottom);
-	double intersect_top = std::min(rect1_top, rect2_top);
-	
-	// بررسی وجود اشتراک
-	if (intersect_left >= intersect_right || intersect_bottom >= intersect_top) {
-		// اگر اشتراک وجود نداشت، یک مستطیل خالی برگردان
-		result.x = 0;
-		result.y = 0;
-		result.lx = 0;
-		result.ly = 0;
-	} else {
-		// محاسبه مرکز و ابعاد مستطیل اشتراک
-		result.x = (intersect_left + intersect_right) / 2;
-		result.y = (intersect_bottom + intersect_top) / 2;
-		result.lx = intersect_right - intersect_left;
-		result.ly = intersect_top - intersect_bottom;
-	}
+TSegment Intersection(const TSegment& rect1, const TSegment& rect2) {
+    TSegment result;
+    
+    // بررسی صفحه z
+    if (fabs(rect1.z - rect2.z) > 1e-10 * std::max(fabs(rect1.z), fabs(rect2.z))) {
+        result.empty = true;
+        return result;
+    }
 
-return result;
+    // محاسبه مرزهای مستطیل‌ها
+    double rect1_left = rect1.x - rect1.lx / 2;
+    double rect1_right = rect1.x + rect1.lx / 2;
+    double rect1_bottom = rect1.y - rect1.ly / 2;
+    double rect1_top = rect1.y + rect1.ly / 2;
+    
+    double rect2_left = rect2.x - rect2.lx / 2;
+    double rect2_right = rect2.x + rect2.lx / 2;
+    double rect2_bottom = rect2.y - rect2.ly / 2;
+    double rect2_top = rect2.y + rect2.ly / 2;
+    
+    // محاسبه اشتراک
+    double intersect_left = std::max(rect1_left, rect2_left);
+    double intersect_right = std::min(rect1_right, rect2_right);
+    double intersect_bottom = std::max(rect1_bottom, rect2_bottom);
+    double intersect_top = std::min(rect1_top, rect2_top);
+    
+    // بررسی وجود اشتراک
+    if (intersect_left >= intersect_right || intersect_bottom >= intersect_top) {
+        result.empty = true;
+        return result;
+    }
+    
+    // محاسبه مستطیل اشتراک
+    result.x = (intersect_left + intersect_right) / 2;
+    result.y = (intersect_bottom + intersect_top) / 2;
+    result.lx = intersect_right - intersect_left;
+    result.ly = intersect_top - intersect_bottom;
+    result.empty = false;
+    
+    return result;
 };
 
 
