@@ -30,7 +30,7 @@ cout <<"$$$$ 6033  " <<e0/d <<endl;
 	fd.index = T.push_tiles(fd.P);
 	THole hu, hd, h;
 	double dh = df;
-	double rr = 1e-10;
+	double rr = 1e1;
 	hu.P.init(0, 0,  dh/2 , fs/rr, fs/rr, 1, 1);
 	hd.P.init(0, 0,  -dh/2, fs/rr, fs/rr, 1, 1);
 	hu.OP = &(fu.P);
