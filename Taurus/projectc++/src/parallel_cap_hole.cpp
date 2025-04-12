@@ -9,7 +9,7 @@ using namespace Eigen;
 int main ()
 {
 double d = 1e-2;
-cout <<"$$$$ : - " <<e0/d <<endl;
+cout <<"$$$$   " <<e0/d <<endl;
 for (int iss = 1; iss < 5; ++iss)
 {
 	TCap s;
@@ -41,8 +41,7 @@ for (int iss = 1; iss < 5; ++iss)
 	{
 		TSegment fh;
 		fh = Intersection (T.Tiles[i], hu.P.Tiles[0]);
-		if (!(fh.empty)){
-			T.Tiles[i].holes.push_back (fh);
+		if (fh.lx > 1e-10 && fh.ly > 1e-10){ 
 			h.P.Tiles.push_back(fh);
 			findex.push_back(i);
 			area_ratio.push_back(fh.lx * fh.ly / (T.Tiles[i].lx * T.Tiles[i].lx));
@@ -52,8 +51,7 @@ for (int iss = 1; iss < 5; ++iss)
 	{
 		TSegment fh;
 		fh = Intersection (T.Tiles[i], hd.P.Tiles[0]);
-		if (!(fh.empty)){
-			T.Tiles[i].holes.push_back (fh);
+		if (fh.lx > 1e-10 && fh.ly > 1e-10){ 
 			h.P.Tiles.push_back(fh);
 			findex.push_back(i);
 			area_ratio.push_back(fh.lx * fh.ly / (T.Tiles[i].lx * T.Tiles[i].ly));

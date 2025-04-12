@@ -9,12 +9,7 @@ class TSegment
 	public:
 	double x, y, z, lx, ly, q;
 	double V;
-	bool empty;
-	TSegment (bool empty = false)
-	{
-		this->empty = empty;
-	};
-	vector <TSegment> holes;
+	
 };
 
 class TPlate
@@ -27,7 +22,6 @@ class TPlate
 	void init (double x, double y, double z, double lx, double ly, int nx, int ny);
 };
 double coupling (TSegment, TSegment);
-double coupling_with_holes (TSegment, TSegment);
 class TTiles
 {
 	public:
@@ -94,7 +88,7 @@ class TFVP
 	int index = 0;
 	void make_v()
 	{
- 1		for (size_t i = 0; i < P.Tiles.size(); ++i)
+		for (size_t i = 0; i < P.Tiles.size(); ++i)
 			P.Tiles[i].V = 0;
 	};
 };
@@ -148,38 +142,15 @@ class THole
 	//};
 };
 
-double coupling(const TSegment& t1, const TSegment& t2) {
-    const double dx = fabs(t1.x - t2.x);
-    const double dy = fabs(t1.y - t2.y);
-    const double dz = fabs(t1.z - t2.z);
-    
-    return (fabs(t1.z - t2.z) > 1e-10)
-        ? parallel(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy, dz)
-        : parallel_coplanar(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy);
-}
 
-double coupling_with_holes(const TSegment& t1, const TSegment& t2) {
-    double cv = coupling(t1, t2);
-    
-    // Subtract contributions from t2's holes
-    for (const auto& hole : t2.holes) {
-        cv -= coupling(t1, *hole);  // Dereference the pointer
-    }
-    
-    // Subtract contributions from t1's holes
-    for (const auto& hole : t1.holes) {
-        cv -= coupling(t2, *hole);  // Dereference the pointer
-    }
-    
-    // Add back interactions between holes (since they were subtracted twice)
-    for (const auto& hole1 : t1.holes) {
-        for (const auto& hole2 : t2.holes) {
-            cv += coupling(*hole1, *hole2);  // Dereference both pointers
-        }
-    }
-    
-    return cv;
-}
+double coupling (TSegment t1, TSegment t2)
+{
+	double dx = fabs(t1.x - t2.x), dy = fabs(t1.y - t2.y), dz = fabs(t1.z - t2.z);
+	if (fabs(t1.z - t2.z) > 1e-10 )
+		return parallel(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy, dz);
+	return parallel_coplanar(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy);
+
+};
 void TPlate::init (double x, double y, double z, double lx, double ly, int nx, int ny)
 {
 	int n = nx * ny;
@@ -242,7 +213,6 @@ TSegment Intersection(const TSegment rect1, TSegment rect2) {
 		result.y = 0;
 		result.lx = 0;
 		result.ly = 0;
-		result.empty = true;
 	} else {
 		// محاسبه مرکز و ابعاد مستطیل اشتراک
 		result.x = (intersect_left + intersect_right) / 2;
