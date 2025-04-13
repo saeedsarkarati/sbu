@@ -9,8 +9,8 @@ using namespace Eigen;
 int main ()
 {
 double d = 1e-2;
-cout <<"$$$$ : - " <<e0/d <<endl;
-for (int iss = 1; iss < 5; ++iss)
+cout <<"$$$$**** : - " <<e0/d <<endl;
+for (int iss = 1; iss < 2; ++iss)
 {
 	TCap s;
 	s.dV = 1;
