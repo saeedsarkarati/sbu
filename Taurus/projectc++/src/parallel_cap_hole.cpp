@@ -30,12 +30,12 @@ for (int iss = 1; iss < 2; ++iss)
 	fd.index = T.push_tiles(fd.P);
 	THole hu, hd, h;
 	double dh = df;
-	double rr = 10000.0;
+	double rr = 1.0;
 	hu.P.init(0, 0,  dh/2 , fs/rr, fs/rr, 1, 1);
 	hd.P.init(0, 0,  -dh/2, fs/rr, fs/rr, 1, 1);
 	hu.OP = &(fu.P);
 	hd.OP = &(fd.P);
-	if (false){
+	if (true){
 	for (size_t i =0; i < T.Tiles.size(); ++i)
 	{
 		TSegment fh;
@@ -60,13 +60,13 @@ for (int iss = 1; iss < 2; ++iss)
 	cout << "Tiles size()" << T.Tiles.size()<<endl;;
 
 	T.make_mat();
+	cout << "Pij:0 - before ccc" <<endl<<T.Pij<< endl;
 	
 	T.change_mat_ccc(s.uindex, size);
 	
 
 
-	T.change_mat_ccc(fu.index, fu.P.Tiles.size() + fd.P.Tiles.size()
-					+h.P.Tiles.size());
+	T.change_mat_ccc(fu.index, fu.P.Tiles.size() + fd.P.Tiles.size());
 	cout << "Pij:0" <<endl<<T.Pij<< endl;
 
 	VectorXd x = T.Pij.colPivHouseholderQr().solve(T.rhs);
@@ -76,12 +76,13 @@ for (int iss = 1; iss < 2; ++iss)
 	cout << "22222222222222222" << endl;
 
 	T.make_mat2();
+	cout << "Pij:1 - before ccc" <<endl<<T.Pij<< endl;
+
 	T.change_mat_ccc(s.uindex, size);
 	
 
 
-	T.change_mat_ccc(fu.index, fu.P.Tiles.size() + fd.P.Tiles.size()
-					+h.P.Tiles.size());
+	T.change_mat_ccc(fu.index, fu.P.Tiles.size() + fd.P.Tiles.size());
 	cout << "Pij:1" <<endl<<T.Pij<< endl;
 	
 	 x = T.Pij.colPivHouseholderQr().solve(T.rhs);

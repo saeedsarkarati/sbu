@@ -44,7 +44,8 @@ class TTiles
 		#pragma omp parallel for
 		for (size_t i = 0; i < n; ++i)
 			rhs(i) = Tiles[i].V;
-	};	void make_mat2()
+	};	
+	void make_mat2()
 	{
 		size_t n = Tiles.size();
 		Pij.resize(n, n);
