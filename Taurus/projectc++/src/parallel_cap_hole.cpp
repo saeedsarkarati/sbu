@@ -30,7 +30,7 @@ for (int iss = 1; iss < 2; ++iss)
 	fd.index = T.push_tiles(fd.P);
 	THole hu, hd, h;
 	double dh = df;
-	double rr = 1e10;
+	double rr = 1e1;
 	hu.P.init(0, 0,  dh/2 , fs/rr, fs/rr, 1, 1);
 	hd.P.init(0, 0,  -dh/2, fs/rr, fs/rr, 1, 1);
 	hu.OP = &(fu.P);
@@ -86,7 +86,7 @@ for (int iss = 1; iss < 2; ++iss)
 	cout << "Pij:1" <<endl<<T.Pij<< endl;
 	
 	 x = T.Pij.colPivHouseholderQr().solve(T.rhs);
-	cout <<iss<< " Solution: " << x.head(s.Pu.Tiles.size()).sum() << endl;
+	cout <<iss<< "  Solution: " << x.head(s.Pu.Tiles.size()).sum() << endl;
 	cout << x << endl;	
 }
 	return 0;

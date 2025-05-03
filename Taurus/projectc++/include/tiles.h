@@ -14,7 +14,20 @@ public:
     void print()
     {
 		cout <<" x: "<< x<<" y: "<< y<<" lx: "<< lx<<" ly: "<< ly<<endl;;
-	} 
+	};
+    double area() const
+    {
+		double a = lx * ly;
+		return a;
+	};
+    double area_without_holes () const
+    {
+		double a = lx * ly;
+		    for ( auto hole: holes) {
+				a -= hole.area();
+			}
+		return a;
+	}; 
 };
 double coupling(const TSegment& , const TSegment& );
 double coupling_with_holes(const TSegment& t1, const TSegment& t2);
@@ -172,34 +185,34 @@ double coupling(const TSegment& t1, const TSegment& t2) {
     return (fabs(t1.z - t2.z) > 1e-10)
         ? parallel(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy, dz)
         : parallel_coplanar(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy);
-}
+};
 double coupling_with_holes(const TSegment& t1, const TSegment& t2) {
-    double cv = coupling(t1, t2);
+    double cv = coupling(t1, t2) * (t1.area() * t2.area()) ;
     static int i = 0 , j =0 ;
-    cout << "j: -----------------" << j<<endl;
+    //cout << "j: -----------------" << j<<endl;
     j++;
     for ( auto hole : t2.holes) {
-        cv -= coupling(t1, hole);
+        cv -= coupling(t1, hole) * (t1.area() * hole.area());
     }
-    cout <<i<<" : cv: "<< cv <<endl;
+    //cout <<i<<" : cv: "<< cv <<endl;
     ++i;
     
     for ( auto hole : t1.holes) {
-        cv -= coupling(t2, hole);
+        cv -= coupling(t2, hole) * (t2.area() * hole.area());
     }
-    cout <<i<<" : cv: "<< cv <<endl;
+    //cout <<i<<" : cv: "<< cv <<endl;
     ++i;
     
     for ( auto hole1 : t1.holes) {
         for ( auto hole2 : t2.holes) {
-            cv += coupling(hole1, hole2);
+            cv += coupling(hole1, hole2) * (hole1.area() * hole2.area());
         }
     }
-    cout <<i<<" : cv: "<< cv <<endl;
+    //cout <<i<<" : cv: "<< cv <<endl;
     ++i;
     
-    return cv;
-}
+    return cv/(t1.area_without_holes() * t2.area_without_holes());
+};
 void TPlate::init (double x, double y, double z, double lx, double ly, int nx, int ny)
 {
 	int n = nx * ny;
