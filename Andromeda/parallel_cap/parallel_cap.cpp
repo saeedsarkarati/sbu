@@ -10,7 +10,7 @@ int main ()
 {
 double d = 1e-2;
 cout <<"$$$$ 6033  " <<e0/d <<endl;
-for (int iss = 1; iss < 10; ++iss)
+for (int iss = 3; iss < 4; ++iss)
 {
 	TCap s;
 	s.dV = 1;
@@ -49,6 +49,37 @@ for (int iss = 1; iss < 10; ++iss)
 			T.Tiles[i].holes.push_back(fh);
 		};
 	};
+cout << "before"<<T.Tiles.size()	<<endl;
+	// حذف کاشی‌هایی که حداقل یکی از holes آنها کاملاً منطبق با خود کاشی است
+//~ for (auto it = T.Tiles.begin(); it != T.Tiles.end(); ) {
+    //~ bool shouldRemove = false;
+    //~ for (const auto& hole : it->holes) {
+        //~ if (!hole.empty && IsExactlySame(*it, hole)) {
+            //~ shouldRemove = true;
+            //~ break;
+        //~ }
+    //~ }
+    //~ if (shouldRemove) {
+        //~ it = T.Tiles.erase(it);  // حذف کاشی و ادامه حلقه
+    //~ } else {
+        //~ ++it;
+    //~ }
+//~ }
+// به جای حذف، ابعاد hole را در 0.99 ضرب می‌کنیم
+for (auto& tile : T.Tiles) {
+    for (auto& hole : tile.holes) {
+        if (!hole.empty && IsExactlySame(tile, hole)) {
+            hole.lx *= 0;
+            hole.ly *= 0;
+            // در صورت نیاز می‌توانید موقعیت (x,y) را هم کمی تنظیم کنید
+            // hole.x = ... 
+            // hole.y = ...
+        }
+    }
+}
+
+cout << "after"<<T.Tiles.size()	<<endl;
+
 }
 	//~ cout << "Tiles  size()" << T.Tiles.size()<<endl;;
 
@@ -56,9 +87,6 @@ for (int iss = 1; iss < 10; ++iss)
 	//~ cout << "Pij:0 - before ccc" <<endl<<T.Pij<< endl;
 	
 	T.change_mat_ccc(s.uindex, size);
-	
-
-
 	//~ cout << "Pij:0" <<endl<<T.Pij<< endl;
 
 	VectorXd x = T.Pij.colPivHouseholderQr().solve(T.rhs);
@@ -72,12 +100,9 @@ for (int iss = 1; iss < 10; ++iss)
 	//~ cout << "Pij:1 - before ccc" <<endl<<T.Pij<< endl;
 
 	T.change_mat_ccc(s.uindex, size);
-	
-
-
 	//~ cout << "Pij:1" <<endl<<T.Pij<< endl;
 	
-	 x = T.Pij.colPivHouseholderQr().solve(T.rhs);
+	x = T.Pij.colPivHouseholderQr().solve(T.rhs);
 	cout <<iss<< "  Solution: " << x.head(s.Pu.Tiles.size()).sum() << endl;
 	cout << endl;	
 }

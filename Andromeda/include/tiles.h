@@ -280,5 +280,14 @@ TSegment Intersection(const TSegment& rect1, const TSegment& rect2) {
     
     return result;
 };
+bool IsExactlySame(const TSegment& a, const TSegment& b, double tol = 1e-10) {
+    return 
+        fabs(a.x - b.x) < tol &&
+        fabs(a.y - b.y) < tol &&
+        fabs(a.lx - b.lx) < tol &&
+        fabs(a.ly - b.ly) < tol &&
+        fabs(a.z - b.z) < tol;
+}
+
 
 
