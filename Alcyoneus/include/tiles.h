@@ -270,7 +270,7 @@ bool IsInside(const TSegment& tile, const TSegment& hole) {
     return (tile_left >= hole_left) && (tile_right <= hole_right) &&
            (tile_bottom >= hole_bottom) && (tile_top <= hole_top);
 }
-	void removeTilesInHoles(vector<TSegment>& tiles, const TSegment& hole) {
+	void removeTilesInHoles2(vector<TSegment>& tiles, const TSegment& hole) {
     tiles.erase(
         remove_if(tiles.begin(), tiles.end(),
             [&hole](const TSegment& tile) {
@@ -281,11 +281,63 @@ bool IsInside(const TSegment& tile, const TSegment& hole) {
             }),
         tiles.end());
 }
-  void removeTilesInHoles2(vector<TSegment>& tiles, const TSegment& hole) {
+  void removeTilesInHoles(vector<TSegment>& tiles, const TSegment& hole) {
     tiles.erase(
         remove_if(tiles.begin(), tiles.end(),
             [&hole](const TSegment& tile) {
                 return IsInside(tile, hole);
             }),
         tiles.end());
+}
+void splitTilesAroundHoles(vector<TSegment>& tiles, const TSegment& hole) {
+    vector<TSegment> newTiles;
+    for (const auto& tile : tiles) {
+        TSegment intersection = Intersection(tile, hole);
+        if (intersection.empty) {
+            // اگر هیچ اشتراکی با حفره ندارد، همان کاشی را نگه دار
+            newTiles.push_back(tile);
+        } else {
+            // محاسبه مرزهای کاشی و حفره
+            double tile_left = tile.R.x - tile.R.lx / 2;
+            double tile_right = tile.R.x + tile.R.lx / 2;
+            double tile_bottom = tile.R.y - tile.R.ly / 2;
+            double tile_top = tile.R.y + tile.R.ly / 2;
+
+            double hole_left = hole.R.x - hole.R.lx / 2;
+            double hole_right = hole.R.x + hole.R.lx / 2;
+            double hole_bottom = hole.R.y - hole.R.ly / 2;
+            double hole_top = hole.R.y + hole.R.ly / 2;
+
+            // تقسیم کاشی به بخش‌های خارج از حفره
+            // بخش چپ
+            if (tile_left < hole_left) {
+                TSegment leftTile = tile;
+                leftTile.R.x = (tile_left + hole_left) / 2;
+                leftTile.R.lx = hole_left - tile_left;
+                newTiles.push_back(leftTile);
+            }
+            // بخش راست
+            if (tile_right > hole_right) {
+                TSegment rightTile = tile;
+                rightTile.R.x = (hole_right + tile_right) / 2;
+                rightTile.R.lx = tile_right - hole_right;
+                newTiles.push_back(rightTile);
+            }
+            // بخش پایین
+            if (tile_bottom < hole_bottom) {
+                TSegment bottomTile = tile;
+                bottomTile.R.y = (tile_bottom + hole_bottom) / 2;
+                bottomTile.R.ly = hole_bottom - tile_bottom;
+                newTiles.push_back(bottomTile);
+            }
+            // بخش بالا
+            if (tile_top > hole_top) {
+                TSegment topTile = tile;
+                topTile.R.y = (hole_top + tile_top) / 2;
+                topTile.R.ly = tile_top - hole_top;
+                newTiles.push_back(topTile);
+            }
+        }
+    }
+    tiles = newTiles;
 }
