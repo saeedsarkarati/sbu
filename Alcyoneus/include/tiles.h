@@ -166,6 +166,20 @@ class TFCap
 	};
 	
 };
+class TDCap
+{
+	// up و down در اینجا به معنا بالا و پایین بودن نیستند. ممکن است که دو صفحه خازنی چب و راست باشند.
+	public:
+	TPlate Pu, Pd;
+	void make_v()
+	{
+		for (size_t i = 0; i < Pu.Tiles.size(); ++i)
+			Pu.Tiles[i].V = 0;
+		for (size_t i = 0; i < Pd.Tiles.size(); ++i)
+			Pd.Tiles[i].V = 0;
+	};
+	
+};
 
 // در parallel_cap_hole.cpp (پس از includeها و قبل از main)
 double coupling(const TSegment& t1, const TSegment& t2) {
