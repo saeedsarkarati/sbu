@@ -140,21 +140,22 @@ class TDP
 		for (size_t i = 0; i < P.Tiles.size(); ++i)
 			P.Tiles[i].V = 0;
 	};
-	void make_Pi(TTiles t)
+	void make_Pj(TTiles t)
 	{
+		size_t n = t.Tiles.size()
 		Puj.resize(n);
+		PDj.resize(n);
 
 		#pragma omp parallel for
 		for (size_t i = 0; i < n; ++i)
-			Pi(i) = Tiles[i].V;
-		
+		{
+			Puj(i) = coupling(t.Tiles[i], );
+
+			
+		};
 	};
 	
-	#pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < n; ++i)
-			for (size_t j = 0; j < n; ++j)
-			{
-				Pij(i,j) = coupling(Tiles[i], Tiles[j]);
+
 };
 //Float Voltage Plate
 class TFVP
