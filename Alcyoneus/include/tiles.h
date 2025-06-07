@@ -3,43 +3,55 @@
 using namespace std;
 //این برنامه صرفا برای کاش‌های صفحه x و y نوشته شده است.
 
+class TPS {
+	public:
+	int index, size;
+};
+class TRect {
+public:
+    double x, y, z, lx, ly;
+
+    // سازنده پیش‌فرض
+    TRect() : x(0), y(0), z(0), lx(0), ly(0) {}
+
+    // تابع برای مقداردهی بعد از ساخت شیء
+    void set(double x_, double y_, double z_, double lx_, double ly_) {
+        x = x_;
+        y = y_;
+        z = z_;
+        lx = lx_;
+        ly = ly_;
+    }
+};
+
 class TSegment {
 public:
-    double x, y, z, lx, ly, q;
+    TRect R;
+    double q;
     double V;
     bool empty;
-	vector<TSegment> holes;
     
     TSegment(bool empty = false) : empty(empty) {}
     void print()
     {
-		cout <<" x: "<< x<<" y: "<< y<<" lx: "<< lx<<" ly: "<< ly<<endl;;
+		cout <<" x: "<< R.x<<" y: "<< R.y<<" lx: "<< R.lx<<" ly: "<< R.ly<<endl;;
 	};
     double area() const
     {
-		double a = lx * ly;
+		double a = R.lx * R.ly;
 		return a;
 	};
-    double area_without_holes () const
-    {
-		double a = lx * ly;
-		    for ( auto hole: holes) {
-				a -= hole.area();
-			}
-		return a;
-	}; 
 };
 double coupling(const TSegment& , const TSegment& );
-double coupling_with_holes(const TSegment& t1, const TSegment& t2);
 
 class TPlate
 {
 	public:
-	double x, y, z, lx, ly;
+	TPS is;
+	TRect R;
 	int nx, ny;
-	bool Active = true;
 	vector <TSegment> Tiles;
-	void init (double x, double y, double z, double lx, double ly, int nx, int ny);
+	void init (TRect R, int nx, int ny);
 };
 class TTiles
 {
@@ -62,27 +74,14 @@ class TTiles
 		for (size_t i = 0; i < n; ++i)
 			rhs(i) = Tiles[i].V;
 	};	
-	void make_mat2()
+	TPS push_tiles(TPlate T)
 	{
-		size_t n = Tiles.size();
-		Pij.resize(n, n);
-		rhs.resize(n);
-		//~ #pragma omp parallel for collapse(2)
-		for (size_t i = 0; i < n; ++i)
-			for (size_t j = 0; j < n; ++j)
-			{
-				Pij(i,j) = coupling_with_holes(Tiles[i], Tiles[j]);
-			}
-		//~ #pragma omp parallel for
-		for (size_t i = 0; i < n; ++i)
-			rhs(i) = Tiles[i].V;
-	};
-	int push_tiles(TPlate T)
-	{
-		int index = Tiles.size();
+		TPS i;
+		i.index = Tiles.size();
+		i.size = T.Tiles.size();
 		for (size_t i = 0; i < T.Tiles.size(); ++i)
 			Tiles.push_back(T.Tiles[i]);
-		return index;
+		return i;
 	};
 	//constant charge condition
 	void change_mat_ccc(int start, int n )
@@ -119,7 +118,6 @@ class TFVP
 {
 	public:
 	TPlate P;
-	int index = 0;
 	void make_v()
 	{
 		for (size_t i = 0; i < P.Tiles.size(); ++i)
@@ -132,7 +130,6 @@ class TCVP
 	public:
 	TPlate P;
 	double V = 0;
-	int index = 0;
 	void make_v()
 	{
 		for (size_t i = 0; i < P.Tiles.size(); ++i)
@@ -146,8 +143,6 @@ class TCap
 	public:
 	TPlate Pu, Pd;
 	double dV = 1;
-	int uindex = 0;
-	int dindex = 0;
 	void make_v()
 	{
 		for (size_t i = 0; i < Pu.Tiles.size(); ++i)
@@ -157,85 +152,54 @@ class TCap
 	};
 	
 };
-class THole
+class TFCap
 {
+	// up و down در اینجا به معنا بالا و پایین بودن نیستند. ممکن است که دو صفحه خازنی چب و راست باشند.
 	public:
-	TPlate P;
-	TPlate* OP;
-	int index = 0;
+	TPlate Pu, Pd;
 	void make_v()
 	{
-		for (size_t i = 0; i < P.Tiles.size(); ++i)
-			P.Tiles[i].V = 0;
+		for (size_t i = 0; i < Pu.Tiles.size(); ++i)
+			Pu.Tiles[i].V = 0;
+		for (size_t i = 0; i < Pd.Tiles.size(); ++i)
+			Pd.Tiles[i].V = 0;
 	};
-
-	//void push_tiles(TTiles T)
-	//{
-		//index = T.tiles.size();
-		//T.Tiles.push_back(P.Tiles);
-	//};
+	
 };
 
 // در parallel_cap_hole.cpp (پس از includeها و قبل از main)
 double coupling(const TSegment& t1, const TSegment& t2) {
-    const double dx = fabs(t1.x - t2.x);
-    const double dy = fabs(t1.y - t2.y);
-    const double dz = fabs(t1.z - t2.z);
+    const double dx = fabs(t1.R.x - t2.R.x);
+    const double dy = fabs(t1.R.y - t2.R.y);
+    const double dz = fabs(t1.R.z - t2.R.z);
     
-    return (fabs(t1.z - t2.z) > 1e-10)
-        ? parallel(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy, dz)
-        : parallel_coplanar(t1.lx, t1.ly, t2.lx, t2.ly, dx, dy);
+    return (fabs(t1.R.z - t2.R.z) > 1e-10)
+        ? parallel(t1.R.lx, t1.R.ly, t2.R.lx, t2.R.ly, dx, dy, dz)
+        : parallel_coplanar(t1.R.lx, t1.R.ly, t2.R.lx, t2.R.ly, dx, dy);
 };
-double coupling_with_holes(const TSegment& t1, const TSegment& t2) {
-    double cv = coupling(t1, t2) * (t1.area() * t2.area()) ;
-    static int i = 0 , j =0 ;
-    //cout << "j: -----------------" << j<<endl;
-    j++;
-    for ( auto hole : t2.holes) {
-        cv -= coupling(t1, hole) * (t1.area() * hole.area());
-    }
-    //cout <<i<<" : cv: "<< cv <<endl;
-    ++i;
-    
-    for ( auto hole : t1.holes) {
-        cv -= coupling(t2, hole) * (t2.area() * hole.area());
-    }
-    //cout <<i<<" : cv: "<< cv <<endl;
-    ++i;
-    
-    for ( auto hole1 : t1.holes) {
-        for ( auto hole2 : t2.holes) {
-            cv += coupling(hole1, hole2) * (hole1.area() * hole2.area());
-        }
-    }
-    //cout <<i<<" : cv: "<< cv <<endl;
-    ++i;
-    
-    return cv/(t1.area_without_holes() * t2.area_without_holes());
-};
-void TPlate::init (double x, double y, double z, double lx, double ly, int nx, int ny)
+void TPlate::init (TRect R, int nx, int ny)
 {
 	int n = nx * ny;
-	this->x = x;
-	this->y = y;
-	this->z = z;
+	this->R.x = R.x;
+	this->R.y = R.y;
+	this->R.z = R.z;
 	
 	this->nx = nx;
 	this->ny = ny;
-	this->lx = lx;
-	this->ly = ly;
-	double Tlx = lx / nx;
-	double Tly = ly / ny;
+	this->R.lx = R.lx;
+	this->R.ly = R.ly;
+	double Tlx = R.lx / nx;
+	double Tly = R.ly / ny;
 	Tiles.resize(n);
 	for (int i = 0; i < n; ++i)
 	{
 		int ix = i % nx;
 		int iy = i / ny;
-		Tiles[i].x = ix * Tlx + x - lx /2 + Tlx /2;
-		Tiles[i].y = iy * Tly + y - ly /2 + Tly /2;
-		Tiles[i].z = z;
-		Tiles[i].lx = Tlx;
-		Tiles[i].ly = Tly;
+		Tiles[i].R.x = ix * Tlx + R.x - R.lx /2 + Tlx /2;
+		Tiles[i].R.y = iy * Tly + R.y - R.ly /2 + Tly /2;
+		Tiles[i].R.z = R.z;
+		Tiles[i].R.lx = Tlx;
+		Tiles[i].R.ly = Tly;
 	};
 };
 
@@ -243,21 +207,21 @@ TSegment Intersection(const TSegment& rect1, const TSegment& rect2) {
     TSegment result;
     
     // بررسی صفحه z
-    if (fabs(rect1.z - rect2.z) > 1e-10 * std::max(fabs(rect1.z), fabs(rect2.z))) {
+    if (fabs(rect1.R.z - rect2.R.z) > 1e-10 * std::max(fabs(rect1.R.z), fabs(rect2.R.z))) {
         result.empty = true;
         return result;
     }
 
     // محاسبه مرزهای مستطیل‌ها
-    double rect1_left = rect1.x - rect1.lx / 2;
-    double rect1_right = rect1.x + rect1.lx / 2;
-    double rect1_bottom = rect1.y - rect1.ly / 2;
-    double rect1_top = rect1.y + rect1.ly / 2;
+    double rect1_left = rect1.R.x - rect1.R.lx / 2;
+    double rect1_right = rect1.R.x + rect1.R.lx / 2;
+    double rect1_bottom = rect1.R.y - rect1.R.ly / 2;
+    double rect1_top = rect1.R.y + rect1.R.ly / 2;
     
-    double rect2_left = rect2.x - rect2.lx / 2;
-    double rect2_right = rect2.x + rect2.lx / 2;
-    double rect2_bottom = rect2.y - rect2.ly / 2;
-    double rect2_top = rect2.y + rect2.ly / 2;
+    double rect2_left = rect2.R.x - rect2.R.lx / 2;
+    double rect2_right = rect2.R.x + rect2.R.lx / 2;
+    double rect2_bottom = rect2.R.y - rect2.R.ly / 2;
+    double rect2_top = rect2.R.y + rect2.R.ly / 2;
     
     // محاسبه اشتراک
     double intersect_left = std::max(rect1_left, rect2_left);
@@ -272,22 +236,56 @@ TSegment Intersection(const TSegment& rect1, const TSegment& rect2) {
     }
     
     // محاسبه مستطیل اشتراک
-    result.x = (intersect_left + intersect_right) / 2;
-    result.y = (intersect_bottom + intersect_top) / 2;
-    result.lx = intersect_right - intersect_left;
-    result.ly = intersect_top - intersect_bottom;
+    result.R.x = (intersect_left + intersect_right) / 2;
+    result.R.y = (intersect_bottom + intersect_top) / 2;
+    result.R.lx = intersect_right - intersect_left;
+    result.R.ly = intersect_top - intersect_bottom;
     result.empty = false;
     
     return result;
 };
 bool IsExactlySame(const TSegment& a, const TSegment& b, double tol = 1e-10) {
     return 
-        fabs(a.x - b.x) < tol &&
-        fabs(a.y - b.y) < tol &&
-        fabs(a.lx - b.lx) < tol &&
-        fabs(a.ly - b.ly) < tol &&
-        fabs(a.z - b.z) < tol;
+        fabs(a.R.x - b.R.x) < tol &&
+        fabs(a.R.y - b.R.y) < tol &&
+        fabs(a.R.lx - b.R.lx) < tol &&
+        fabs(a.R.ly - b.R.ly) < tol &&
+        fabs(a.R.z - b.R.z) < tol;
 }
 
+bool IsInside(const TSegment& tile, const TSegment& hole) {
+    // محاسبه مرزهای کاشی
+    double tile_left = tile.R.x - tile.R.lx / 2;
+    double tile_right = tile.R.x + tile.R.lx / 2;
+    double tile_bottom = tile.R.y - tile.R.ly / 2;
+    double tile_top = tile.R.y + tile.R.ly / 2;
 
+    // محاسبه مرزهای حفره
+    double hole_left = hole.R.x - hole.R.lx / 2;
+    double hole_right = hole.R.x + hole.R.lx / 2;
+    double hole_bottom = hole.R.y - hole.R.ly / 2;
+    double hole_top = hole.R.y + hole.R.ly / 2;
 
+    // بررسی قرارگیری کامل کاشی داخل حفره
+    return (tile_left >= hole_left) && (tile_right <= hole_right) &&
+           (tile_bottom >= hole_bottom) && (tile_top <= hole_top);
+}
+	void removeTilesInHoles(vector<TSegment>& tiles, const TSegment& hole) {
+    tiles.erase(
+        remove_if(tiles.begin(), tiles.end(),
+            [&hole](const TSegment& tile) {
+                TSegment intersection = Intersection(tile, hole);
+                return !intersection.empty && 
+                       (intersection.R.lx == tile.R.lx) && 
+                       (intersection.R.ly == tile.R.ly);
+            }),
+        tiles.end());
+}
+  void removeTilesInHoles2(vector<TSegment>& tiles, const TSegment& hole) {
+    tiles.erase(
+        remove_if(tiles.begin(), tiles.end(),
+            [&hole](const TSegment& tile) {
+                return IsInside(tile, hole);
+            }),
+        tiles.end());
+}

@@ -4,7 +4,7 @@
 #include <omp.h>
 
 using namespace std;
-using namespace Eigen;
+using namespace Eigen;fa
 
 int main ()
 {
