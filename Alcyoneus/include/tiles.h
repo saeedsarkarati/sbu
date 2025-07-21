@@ -113,6 +113,25 @@ class TTiles
         rhs(last_row_idx) = 0;
 	};
 };
+//Dielectric Plate^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+class TDP
+{
+	public:
+	TPlate P, U, D;
+	double delta = 1e-10;
+	void UDinit()
+	{
+		U.init(P.R, P.nx, P.ny);
+		U.R.z += delta;
+		D.init(P.R, P.nx, P.ny);
+		D.R.z -= delta;
+	}
+	void make_v()
+	{
+		for (size_t i = 0; i < P.Tiles.size(); ++i)
+			P.Tiles[i].V = 0;
+	};
+};
 //Float Voltage Plate
 class TFVP
 {
