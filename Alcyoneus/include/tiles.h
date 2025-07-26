@@ -73,7 +73,8 @@ class TTiles
 		#pragma omp parallel for
 		for (size_t i = 0; i < n; ++i)
 			rhs(i) = Tiles[i].V;
-	};	
+	};
+	
 	TPS push_tiles(TPlate T)
 	{
 		TPS i;
@@ -119,18 +120,41 @@ class TDP
 	public:
 	TPlate P, U, D;
 	double delta = 1e-10;
+	double Uer = 1, Der = 1;
+	VectorXd Puj, Pdj;
+
 	void UDinit()
 	{
-		U.init(P.R, P.nx, P.ny);
+		TRect UR;
+		UR = P.R;
+		UR.z += delta;
+		U.init(UR, P.nx, P.ny);
 		U.R.z += delta;
-		D.init(P.R, P.nx, P.ny);
-		D.R.z -= delta;
+		TRect DR;
+		DR = P.R;
+		DR.z -= delta;
+		D.init(DR, P.nx, P.ny);
 	}
 	void make_v()
 	{
 		for (size_t i = 0; i < P.Tiles.size(); ++i)
 			P.Tiles[i].V = 0;
 	};
+	void make_Pi(TTiles t)
+	{
+		Puj.resize(n);
+
+		#pragma omp parallel for
+		for (size_t i = 0; i < n; ++i)
+			Pi(i) = Tiles[i].V;
+		
+	};
+	
+	#pragma omp parallel for collapse(2)
+		for (size_t i = 0; i < n; ++i)
+			for (size_t j = 0; j < n; ++j)
+			{
+				Pij(i,j) = coupling(Tiles[i], Tiles[j]);
 };
 //Float Voltage Plate
 class TFVP
