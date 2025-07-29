@@ -121,7 +121,7 @@ class TDP
 	TPlate P, U, D;
 	double delta = 1e-10;
 	double Uer = 1, Der = 1;
-	VectorXd Puj, Pdj;
+	MatrixXd Pu, Pd;
 
 	void UDinit()
 	{
@@ -140,20 +140,21 @@ class TDP
 		for (size_t i = 0; i < P.Tiles.size(); ++i)
 			P.Tiles[i].V = 0;
 	};
-	void make_Pj(TTiles t)
+	void make_P(TTiles t)
 	{
-		size_t n = t.Tiles.size()
-		Puj.resize(n);
-		PDj.resize(n);
+		size_t n1 = U.Tiles.size();
+		size_t n2 = t.Tiles.size();
+		Pu.resize(n1, n2);
+		Pd.resize(n1, n2);
 
-		#pragma omp parallel for
-		for (size_t i = 0; i < n; ++i)
-		{
-			Puj(i) = coupling(t.Tiles[i], );
-
-			
+		#pragma omp parallel for collapse(2)
+		for (size_t i = 0; i < n1; ++i)
+			for (size_t j = 0; j < n2; ++j)
+			{
+				Pu(i,j) = coupling(U.Tiles[i], t.Tiles[j]);
+				Pd(i,j) = coupling(D.Tiles[i], t.Tiles[j]);
+			}
 		};
-	};
 	
 
 };

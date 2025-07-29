@@ -43,8 +43,20 @@ for (int iss =1; iss < 2; ++iss)
 	di_up.P.is = T.push_tiles(di_up.P);
 	di_down.P.is = T.push_tiles(di_down.P);
 	T.make_mat();
+	di_up.make_P(T);
+	di_down.make_P(T);
 	if (iss == 1)
+	{
 		cout << T.Pij<<endl;
+		cout <<endl;
+		cout <<"1 "<< di_up.Pu<<endl;
+		cout <<"2 "<< di_up.Pd<<endl;
+		cout <<"3 "<< di_down.Pu<<endl;
+		cout <<"4 "<< di_down.Pd<<endl;
+		cout <<"5 "<< di_up.Pu - di_up.Pd<<endl;
+		cout <<"6 "<< di_down.Pu - di_down.Pd<<endl;
+	}
+		
 
 /*
 
